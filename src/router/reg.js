@@ -9,7 +9,6 @@ const bcrypt = require('bcrypt')
 const Registration = require('../models/Reg');
 const Transactions = require('../models/Transactions');
 
-const keys = require('../keys')
 
 router.post('/register', jsonParser,(req, res) => {
     customerName = req.body.customerName;
