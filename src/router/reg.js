@@ -26,7 +26,6 @@ router.post('/register', jsonParser,(req, res) => {
     }
     Transactions.findOne({ "customerEmail": email })
     .then((successTransaction)=>{
-        // console.log(successTransaction)
         if(!successTransaction){
             res.status(422).json({ error: 'Enter same email used for payment' });
         }
@@ -57,10 +56,8 @@ router.post('/register', jsonParser,(req, res) => {
 
 // transaction
 router.post('/transaction', [jsonParser, urlencodedParser], (req, res) =>{
-    //console.log(req.body.payload)
         
         if(req.body.payload.payment){
-            console.log('undefined log')
             res.send({ status: 'invalid' })
         }
         else{
@@ -78,7 +75,6 @@ router.post('/transaction', [jsonParser, urlencodedParser], (req, res) =>{
         // customerPhoneNo
     });
 
-    // console.log(transaction)
     if (paymentStatus === 'captured'){
     transaction.save()
         .then(() => {
@@ -97,7 +93,6 @@ router.post('/transaction', [jsonParser, urlencodedParser], (req, res) =>{
 
 //login
 router.post('/login', [jsonParser, urlencodedParser], (req, res) => {
-    console.log(req.body)
     const customerEmail = req.body.customerEmail;
     const password = req.body.password;
     if(!customerEmail || !password){
@@ -109,7 +104,6 @@ router.post('/login', [jsonParser, urlencodedParser], (req, res) => {
             if(!registeredParticipant){
                 res.status(422).json({ error: 'Not registered user complete the registration' });
             }
-            console.log(registeredParticipant)
             bcrypt.compare(password, registeredParticipant.password)
             .then((doMatch) => {
                 if (doMatch) {
