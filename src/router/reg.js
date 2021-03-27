@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const bcrypt = require('bcrypt')
-
+JWT_SECRET = 'appfortedxcusat'
 
 const Registration = require('../models/Reg');
 const Transactions = require('../models/Transactions');
@@ -91,7 +91,7 @@ router.post('/transaction', [jsonParser, urlencodedParser], (req, res) =>{
 })
 
 //login
-router.post('/login', [jsonParser, urlencodedParser], (req, res) => {
+router.post('/login', [urlencodedParser, jsonParser], (req, res) => {
     const customerEmail = req.body.customerEmail;
     const password = req.body.password;
     if(!customerEmail || !password){
@@ -103,6 +103,7 @@ router.post('/login', [jsonParser, urlencodedParser], (req, res) => {
             if(!registeredParticipant){
                 res.status(422).json({ error: 'Not registered user complete the registration' });
             }
+            console.log(registeredParticipant)
             bcrypt.compare(password, registeredParticipant.password)
             .then((doMatch) => {
                 if (doMatch) {
