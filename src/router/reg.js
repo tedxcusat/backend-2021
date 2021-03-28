@@ -11,12 +11,7 @@ const requireLogin = require('../middleware/requireLogin');
 
 const Registration = require('../models/Reg');
 const Transactions = require('../models/Transactions');
-
-
-var email;
-var otp = Math.random();
-otp = otp * 1000000;
-otp = parseInt(otp);
+const OTP = require('../models/otp')
 
 
 let transporter = nodemailer.createTransport({
@@ -34,6 +29,9 @@ let transporter = nodemailer.createTransport({
 
 router.post('/sendOTP', jsonParser, (req, res) =>{
     email=req.body.email;
+    var otp = Math.random();
+    otp = otp * 1000000;
+    otp = parseInt(otp);
     Transactions.findOne({ "customerEmail": email })
     .then((successTransaction)=>{
         if(!successTransaction){
@@ -54,11 +52,21 @@ router.post('/sendOTP', jsonParser, (req, res) =>{
                 }
                 console.log('Message sent: %s', info.messageId);   
                 console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+                const otpObj = new OTP({
+                    email,
+                    otp
+                })
+                // console.log(otpObj)
+                otpObj.save()
+                .catch((err) => {
+                    console.log(err)
+                })
                 res.send({ 
                     message: 'OTP sent successfully',
                     status: 201
                 });
             });
+            
         }
     })
     
@@ -66,7 +74,9 @@ router.post('/sendOTP', jsonParser, (req, res) =>{
 })
 
 
+
 router.post('/resendOTP',function(req,res){
+
     var mailOptions={
         to: email,
        subject: "Otp for registration is: ",
@@ -78,6 +88,15 @@ router.post('/resendOTP',function(req,res){
         }
         console.log('Message sent: %s', info.messageId);   
         console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        const otpObj = new OTP({
+            email,
+            otp
+        })
+        // console.log(otpObj)
+        otpObj.save()
+        .catch((err) => {
+            console.log(err)
+        })
         res.send({ 
             message: 'OTP resent successful',
             status: 201
@@ -88,18 +107,32 @@ router.post('/resendOTP',function(req,res){
 
 router.post('/verifyOTP',function(req,res){
     console.log(req.body);
-    if(req.body.otp==otp){
-        res.send({ 
-            message: 'You has been successfully verified',
-            status: 201
-        });
-    }
-    else{
-        res.send({ 
-            message: 'otp is incorrect',
-            status: 422
-        });
-    }
+    const email = req.body.email;
+    const otp = req.body.otp;
+    OTP.findOne({email})
+    .then((otpdetails) => {
+        if(!otpdetails){
+            res.send({ 
+                message: 'OTP expired',
+                status: 422
+            });
+        }
+        else{
+            if(otp == otpdetails.otp){
+                res.send({ 
+                    message: 'You has been successfully verified',
+                    status: 201
+                });
+            }
+            else{
+                res.send({ 
+                    message: 'otp is incorrect',
+                    status: 422
+                });
+            }
+        }
+    })
+
 });
 
 router.post('/register', jsonParser,(req, res) => {
@@ -113,6 +146,7 @@ router.post('/register', jsonParser,(req, res) => {
     houseName = req.body.houseName;
     address = req.body.address;
     pin = req.body.pin;
+    console.log(req.body)
     if (!customerName || !email || !password || !phoneNo || !gender || !age || !houseName || !address || !pin) {
         res.send({ 
             message: 'please add all the fields',
