@@ -3,6 +3,7 @@ var express = require("express");
 var bodyParser = require('body-parser')
 var app = express();
 const reg = require('./src/router/reg')
+const admin = require('./src/router/admin')
 const cors = require('cors')
 
 var jsonParser = bodyParser.json()
@@ -27,6 +28,7 @@ app.get('/', (req, res)=>{
 
 app.use(cors())
 app.use(reg)
+app.use(admin)
 
 var server = app.listen(8000, function () {
   console.log("Server Running on port.", server.address().port);})

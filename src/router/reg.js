@@ -6,18 +6,18 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const bcrypt = require('bcrypt')
 var jwt = require('jsonwebtoken');
 var nodemailer = require('nodemailer');
-JWT_SECRET = 'appfortedxcusat'
+const { JWT_SECRET,user, pass } = require('../keys/keys');
+const requireLogin = require('../middleware/requireLogin');
 
 const Registration = require('../models/Reg');
 const Transactions = require('../models/Transactions');
 
 
 var email;
-
 var otp = Math.random();
 otp = otp * 1000000;
 otp = parseInt(otp);
-console.log(otp);
+
 
 let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -26,20 +26,20 @@ let transporter = nodemailer.createTransport({
     service : 'Gmail',
     
     auth: {
-      user: 'tedxcusatconfirmation@gmail.com',
-      pass: 'err422succ201',
+      user,
+      pass,
     }
     
 });
 
-router.post('/send', jsonParser, (req, res) =>{
+router.post('/sendOTP', jsonParser, (req, res) =>{
     email=req.body.email;
     Transactions.findOne({ "customerEmail": email })
     .then((successTransaction)=>{
         if(!successTransaction){
             res.send({ 
                 message: 'Enter same email used for payment or complete the payment',
-                status: '422'
+                status: 422
             });
         }
         else{
@@ -56,7 +56,7 @@ router.post('/send', jsonParser, (req, res) =>{
                 console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
                 res.send({ 
                     message: 'OTP sent successfully',
-                    status: '201'
+                    status: 201
                 });
             });
         }
@@ -66,7 +66,7 @@ router.post('/send', jsonParser, (req, res) =>{
 })
 
 
-router.post('/resend',function(req,res){
+router.post('/resendOTP',function(req,res){
     var mailOptions={
         to: email,
        subject: "Otp for registration is: ",
@@ -80,23 +80,24 @@ router.post('/resend',function(req,res){
         console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
         res.send({ 
             message: 'OTP resent successful',
-            status: '201'
+            status: 201
         });
     });
 
 });
 
-router.post('/verify',function(req,res){
+router.post('/verifyOTP',function(req,res){
+    console.log(req.body);
     if(req.body.otp==otp){
         res.send({ 
             message: 'You has been successfully verified',
-            status: '201'
+            status: 201
         });
     }
     else{
         res.send({ 
             message: 'otp is incorrect',
-            status: '422'
+            status: 422
         });
     }
 });
@@ -115,7 +116,7 @@ router.post('/register', jsonParser,(req, res) => {
     if (!customerName || !email || !password || !phoneNo || !gender || !age || !houseName || !address || !pin) {
         res.send({ 
             message: 'please add all the fields',
-            status: '422'
+            status: 422
         });
     }
     Transactions.findOne({ "customerEmail": email })
@@ -123,7 +124,7 @@ router.post('/register', jsonParser,(req, res) => {
         if(!successTransaction){
             res.send({ 
                 message: 'Enter same email used for payment',
-                status: '422'
+                status: 422
             });
         }
         else{
@@ -144,7 +145,7 @@ router.post('/register', jsonParser,(req, res) => {
             .then((reg)=>{
                 res.send({ 
                     message: 'saved sucessfully',
-                    status: '201'
+                    status: 201
                 });
             })
             .catch((err) => console.log(err));
@@ -207,7 +208,7 @@ const password = req.body.password;
 if(!customerEmail || !password){
     res.send({ 
         message: 'Enter the required details',
-        status: '422'
+        status: 422
     });
 }
 else{
@@ -216,7 +217,7 @@ else{
         if(!registeredParticipant){
             res.send({ 
                 message: 'Not registered user complete the registration',
-                status: '422'
+                status: 422
             });
         }
         console.log(registeredParticipant)
@@ -225,12 +226,12 @@ else{
             if (doMatch) {
                 const token = jwt.sign({ id: registeredParticipant._id }, JWT_SECRET);
         const { _id, customerName } = registeredParticipant;
-        res.json({ token, user: { _id, customerName } });
+        res.json({ token, user: { _id, customerName }, status: 201});
             }
             else {
                 res.send({ 
                     message: 'Incorrect passwors',
-                    status: '422'
+                    status: 422
                 });
                 
             }
@@ -242,8 +243,12 @@ else{
 
 
 // return page
-router.get('/return', (req, res)=>{
-    res.send('returned')
+router.get('/verifyLogin', requireLogin ,(req, res)=>{
+    Registration.findOne({ _id: req.params.id })
+    .select('-password')
+    .then((user) => {
+        res.send(user)
+    })
 })
 
 module.exports = router;
