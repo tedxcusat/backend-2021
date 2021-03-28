@@ -201,7 +201,8 @@ else{
 //login
 router.post('/login', [urlencodedParser, jsonParser], (req, res) => {
     console.log('/login')
-const customerEmail = req.body.customerEmail;
+    console.log(req.body)
+const customerEmail = req.body.emailId;
 const password = req.body.password;
 if(!customerEmail || !password){
     res.send({ 
