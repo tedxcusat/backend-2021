@@ -27,6 +27,7 @@ app.get('/', (req, res)=>{
 
 
 app.use(cors())
+app.set('view engine', 'ejs');
 app.use(reg)
 app.use(admin)
 

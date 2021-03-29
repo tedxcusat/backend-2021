@@ -5,11 +5,10 @@ const { JWT_SECRET } = require('../keys/keys');
 const User = require('../models/Reg')
 
 module.exports = ((req, res, next) => {
-  const { authorization } = req.headers;
-  if (!authorization) {
+  const { token } = req.headers;
+  if (!token) {
     return res.status(401).json({ error: 'you are not signed in' });
   }
-  const token = authorization
   jwt.verify(token, JWT_SECRET, (err, payload) => {
     if (err) {
       return res.status(401).json({ error: 'you are not signed in' });

@@ -8,7 +8,12 @@ const keys = require('../keys/keys')
 const Registration = require('../models/Reg');
 const Transactions = require('../models/Transactions');
 
-router.get('/admin/view', jsonParser, (req, res)=>{
+
+router.get('/admin', (req, res)=>{
+    res.render('admin')
+})
+
+router.post('/admin/view', bodyParser.urlencoded({ extended: true }), (req, res)=>{
     username = req.body.username;
     password = req.body.password;
     if(!username || !password){
@@ -35,7 +40,7 @@ router.get('/admin/view', jsonParser, (req, res)=>{
             Transactions.find()
             .then((transactionData)=>{
                 data = ({...data,"transactionData":transactionData})
-                res.send(data)
+                res.render('adminView', {data})
             })
         }
     }

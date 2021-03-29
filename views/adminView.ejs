@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=S, initial-scale=1.0">
+    <title>Tedx admin</title>
+</head>
+<body>
+    <h1>Transaction Table</h1>
+    <table>
+        <tr>
+           <th>paymentId</th><th>paymentStatus</th><th>amount:</th>
+           <th>customerEmail</th>
+        </tr>
+     
+        <% for (var i = 0; i < data.transactionData.length; i++) { %>
+         <tr>
+           <td><%= data.transactionData[i].paymentId %></td>
+           <td><%= data.transactionData[i].paymentStatus %></td>
+           <td><%= data.transactionData[i].amount %></td>
+           <td><%= data.transactionData[i].customerEmail %></td>
+          
+         </tr>    
+        <% } %>
+     </table>
+     <h1>Registration Table</h1>
+     <table>
+        <tr>
+           <th>customerName</th><th>email</th><th>phoneNo</th>
+           <th>gender</th><th>age</th><th>houseName</th><th>address</th><th>pin</th>
+        </tr>
+        <% for (var i = 0; i < data.registrationData.length; i++) { %>
+         <tr>
+           <td><%= data.registrationData[i].customerName %></td>
+           <td><%= data.registrationData[i].email %></td>
+           <td><%= data.registrationData[i].phoneNo %></td>
+           <td><%= data.registrationData[i].gender %></td>
+           <td><%= data.registrationData[i].age %></td>
+           <td><%= data.registrationData[i].address %></td>
+           <td><%= data.registrationData[i].pin %></td>
+          
+         </tr>    
+        <% } %>
+     </table>
+
+
+</body>
+</html>

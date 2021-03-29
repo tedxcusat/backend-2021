@@ -73,10 +73,29 @@ router.post('/sendOTP', jsonParser, (req, res) =>{
     
 })
 
+router.post('/automaticEmailVerification', (req, res)=>{
+    paymentId = req.body.paymentId
+    Transactions.findOne({ paymentId })
+    .then((transactionDetails) =>{
+        if(!transactionDetails){
+            res.send({ 
+                message: 'Email verification not successful',
+                status: 422,
+            });
+        }else{
+            res.send({ 
+                message: 'Email verification successful',
+                status: 201,
+                customerEmail: transactionDetails.customerEmail
+            });
+        }
+    })
+    .catch((err) => console.log(err))
+})
 
 
 router.post('/resendOTP',function(req,res){
-
+    const email = req.body.email;
     var mailOptions={
         to: email,
        subject: "Otp for registration is: ",
@@ -277,12 +296,15 @@ else{
 
 
 // return page
-router.get('/verifyLogin', requireLogin ,(req, res)=>{
-    Registration.findOne({ _id: req.params.id })
-    .select('-password')
-    .then((user) => {
-        res.send(user)
-    })
+router.post('/verifyLogin', requireLogin ,(req, res)=>{
+    const userObj = {
+        "name": req.user.customerName,
+        "email": req.user.email,
+        "id": req.user._id
+    }
+    console.log(userObj);
+    res.send(userObj)
+
 })
 
 module.exports = router;
