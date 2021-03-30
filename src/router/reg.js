@@ -62,7 +62,7 @@ router.post('/sendOTP', jsonParser, (req, res) =>{
                     console.log(err)
                 })
                 res.send({ 
-                    message: 'OTP sent successfully',
+                    message: "OTP sent successfully, If you didn't find the email check the spam mail.",
                     status: 201
                 });
             });
@@ -79,7 +79,7 @@ router.post('/automaticEmailVerification', (req, res)=>{
     .then((transactionDetails) =>{
         if(!transactionDetails){
             res.send({ 
-                message: 'Email verification not successful',
+                message: 'Automatic Email verification not successful try manually',
                 status: 422,
             });
         }else{
@@ -125,7 +125,6 @@ router.post('/resendOTP',function(req,res){
 });
 
 router.post('/verifyOTP',function(req,res){
-    console.log(req.body);
     const email = req.body.email;
     const otp = req.body.otp;
     OTP.findOne({email})
@@ -165,7 +164,6 @@ router.post('/register', jsonParser,(req, res) => {
     houseName = req.body.houseName;
     address = req.body.address;
     pin = req.body.pin;
-    console.log(req.body)
     if (!customerName || !email || !password || !phoneNo || !gender || !age || !houseName || !address || !pin) {
         res.send({ 
             message: 'please add all the fields',
@@ -214,13 +212,11 @@ router.post('/transaction', [jsonParser, urlencodedParser], (req, res) =>{
 
 
     console.log('/transaction');
-    console.log(req.body.payload)
     if(!req.body.payload.payment){
     console.log('invalid')
         res.send({ status: 'invalid' })
     }
     else{
-console.log('in else');
     var payload = req.body.payload;
     var paymentId = payload.payment.entity.id;
     var paymentStatus = payload.payment.entity.status;
@@ -234,7 +230,6 @@ console.log('in else');
     customerEmail,
     // customerPhoneNo
 });
-    console.log(transaction)
 
 if (paymentStatus === 'captured'){
 transaction.save()
@@ -255,7 +250,6 @@ else{
 //login
 router.post('/login', [urlencodedParser, jsonParser], (req, res) => {
     console.log('/login')
-    console.log(req.body)
 const customerEmail = req.body.emailId;
 const password = req.body.password;
 if(!customerEmail || !password){
@@ -273,7 +267,6 @@ else{
                 status: 422
             });
         }
-        console.log(registeredParticipant)
         bcrypt.compare(password, registeredParticipant.password)
         .then((doMatch) => {
             if (doMatch) {
@@ -283,7 +276,7 @@ else{
             }
             else {
                 res.send({ 
-                    message: 'Incorrect passwors',
+                    message: 'Incorrect password',
                     status: 422
                 });
                 
@@ -302,7 +295,6 @@ router.post('/verifyLogin', requireLogin ,(req, res)=>{
         "email": req.user.email,
         "id": req.user._id
     }
-    console.log(userObj);
     res.send(userObj)
 
 })
