@@ -41,7 +41,7 @@ router.post('/admin/view', bodyParser.urlencoded({ extended: true }), (req, res)
             .then((transactionData)=>{
                 data = ({...data,"transactionData":transactionData})
                 res.render('adminView', {data})
-            })
+            }).catch((err) => console.log(err))
         }
     }
 })

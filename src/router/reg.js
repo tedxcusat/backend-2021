@@ -286,7 +286,75 @@ else{
 }
 
 })
+//change password
+router.post('/changePassword', (req, res)=>{
+    var email = req.body.email;
+    var password = req.body.password;
+    bcrypt.hash(password, 15)
+    .then((hashedPassword)=>{
+    Registration.findOneAndUpdate({ 'email': email, 'password':hashedPassword})
+    .then(()=>{
+        res.send({ 
+            message: 'Password changed',
+            status: 201
+        });
+    }).catch((err)=>console.log(err))
+}).catch((err)=>console.log(err))
+})
 
+//forgot password
+router.post('/forgotPassword', (req, res)=>{
+    var email = req.body.email;
+    var otp = Math.random();
+    otp = otp * 1000000;
+    otp = parseInt(otp);
+    console.log("/forgot");
+    Registration.find({ 'email': email })
+    .then((registeredParticipant) => {
+        if(!registeredParticipant){
+            console.log('Not a reg user')
+            res.send({ 
+                message: 'Not registered user complete the registration',
+                status: 422
+            });
+        }
+        else{
+            var mailOptions={
+                to: email,
+                subject: "Otp for resetting password is: ",
+               html: "<h3>OTP for account verification is </h3>"  + "<h1 style='font-weight:bold;'>" + otp +"</h1>" // html body
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    return console.log(error);
+                }
+                console.log('Message sent: %s', info.messageId);   
+                console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+                const otpObj = new OTP({
+                    email,
+                    otp
+                })
+                // console.log(otpObj)
+                otpObj.save()
+                .then(()=>{
+                    res.send({ 
+                        message: 'OTP sent successful',
+                        status: 201
+                    });
+                })
+                .catch((err) => {
+                    console.log(err)
+                    res.send({ 
+                        message: 'failed to send OTP',
+                        status: 422
+                    });
+                })
+                
+            });
+        
+        }
+    }).catch(err => console.log(err))
+})
 
 // return page
 router.post('/verifyLogin', requireLogin ,(req, res)=>{
